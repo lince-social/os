@@ -78,5 +78,6 @@ Since we didn't specify anything in the root ('/') dir, Anicca will not touch it
 Every other dir in '/' will be deleted, that's bad in most cases, if you don't know if it's bad for you, it's bad for you.
 
 # TODO
-- [ ] Flags for preview of what will be deleted
-- [ ] Flag for deleting entire dir without having to specify one phantom subdir
+- [ ] Move config to .toml
+  - [ ] Flags for preview of what will be deleted
+  - [ ] Flag for deleting entire dir without having to specify one phantom subdir
