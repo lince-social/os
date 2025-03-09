@@ -32,6 +32,10 @@ Below is a listing of this package's features, explaining what they do and how d
 
 Anicca means 'impermanence' in Pali, Nicca means the contrary: permanence. A fitting name for the specification of what persists. The Anicca feature deletes all files and directories that are in the same dir as a specified file or directory. Nicca specifies files and dirs that should be ignored from that clean slate wipe.
 
+This was robbed from NixOS's [Impermanence](https://github.com/nix-community/impermanence) flake, the only reason I stayed in NixOS for so long. I wanted that feature in every distro and built this.
+
+If I where to summarize to the atomic level what this feature does when it reads your dotfile at os.toml it would be this:
+
 > One dir up that line is put into a 'list' of dirs that will have everything in it removed, except the dir specified.
 
 (What?)
@@ -108,6 +112,28 @@ Every other dir in '/' will be deleted, that's bad in most cases, if you don't k
 
 <details><summary><h1>Dotfiles</h1></summary>
 IN PROGRESS
+
+
+         ,%&& %&& %
+       ,%&%& %&%& %&
+      %& %&% &%&% % &%
+     % &%% %&% &% %&%&,
+     &%&% %&%& %& &%& %
+    %%& %&%& %&%&% %&%%&
+    &%&% %&% % %& &% %%&
+    && %&% %&%& %&% %&%'
+     '%&% %&% %&&%&%%'%
+      % %& %& %&% &%%
+        `\%%.'  /`%&'
+          |    |            /`-._           _\\/
+          |,   |_          /     `-._ ..--~`_
+          |;   |_`\_      /  ,\\.~`  `-._ -  ^
+          |;:  |/^}__..-,@   .~`    ~    `o ~
+          |;:  |(____.-'     '.   ~   -    `    ~
+          |;:  |  \ / `\       //.  -    ^   ~
+          |;:  |\ /' /\_\_        ~. _ ~   -   //-
+     jgs\\/;:   \'--' `---`           `\\//-\\///
+ 
 </details>
 
 # TODO
