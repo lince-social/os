@@ -24,45 +24,78 @@ pub fn dotfiles() -> std::io::Result<()> {
     println!("dotfiles method: {dotfiles_method}");
     let dotfiles_other = &config_contents.dotfiles.other;
     // println!("dotfiles other: {dotfiles_other:#?}");
+    //
     for (destination, origin) in dotfiles_other {
-        // println!("destination: {destination}");
-        // println!("origin: {origin}");
-        // println!("---");
+        println!("Processing: destination={destination}, origin={origin}");
+
         match dotfiles_method.as_str() {
             "remove and copy over" => {
-                let _ = match fs::remove_dir_all(&*destination) {
-                    Ok(file) => file,
-                    Err(error) => match error.kind() {
-                        ErrorKind::NotADirectory => {
-                            match fs::remove_file(destination.to_string()) {
-                                Ok(fd) => fd,
-                                Err(e) => panic!("Problem deleting file: {e:?}"),
-                            }
-                        }
-                        ErrorKind::NotFound => println!("Error not found hayaa: {destination}"),
-                        other_error => {
-                            panic!("Other problem: {other_error:?}");
-                        }
-                    },
-                };
+                // if let Err(error) = fs::remove_dir_all(&destination) {
+                //     match error.kind() {
+                //         ErrorKind::NotADirectory => {
+                //             if let Err(e) = fs::remove_file(&destination) {
+                //                 eprintln!("Failed to delete file: {e:?}");
+                //             } else {
+                //                 println!("Deleted file: {destination}");
+                //             }
+                //         }
+                //         ErrorKind::NotFound => println!("File not found: {destination}"),
+                //         other_error => {
+                //             eprintln!("Other problem deleting {destination}: {other_error:?}");
+                //         }
+                //     }
+                // } else {
+                //     println!("Deleted directory: {destination}");
+                // }
 
-                fs::copy(origin, destination)?;
-                println!("The remove and copy over method was used")
+                if let Err(copy_error) = fs::copy(&origin, &destination) {
+                    eprintln!("Failed to copy {origin} to {destination}: {copy_error:?}");
+                } else {
+                    println!("Copied {origin} to {destination}");
+                }
             }
-            "copy over" => {
-                println!("The copy over method was used")
-            }
-            "symlink" => {
-                println!("The symlink method was used")
-            }
-            "cat" => {
-                println!("The cat method was used")
-            }
-            &_ => panic!(
-                "Method was not specified correctly, refer to documentation for further details."
-            ),
+            _ => println!("Unknown method: {dotfiles_method}"),
         }
     }
+    // for (destination, origin) in dotfiles_other {
+    //     // println!("destination: {destination}");
+    //     // println!("origin: {origin}");
+    //     // println!("---");
+    //     match dotfiles_method.as_str() {
+    //         "remove and copy over" => {
+    //             let _ = match fs::remove_dir_all(&*destination) {
+    //                 Ok(file) => println!("deleted f:{file:?} ||| destination: {destination}"),
+    //                 Err(error) => match error.kind() {
+    //                     ErrorKind::NotADirectory => {
+    //                         match fs::remove_file(destination.to_string()) {
+    //                             Ok(fd) => println!("deleted: fd(){fd:?}||{destination}"),
+    //                             Err(e) => panic!("Problem deleting file: {e:?}"),
+    //                         }
+    //                     }
+    //                     ErrorKind::NotFound => println!("Error not found hayaa: {destination}"),
+    //                     other_error => {
+    //                         panic!("Other problem: {other_error:?}");
+    //                     }
+    //                 },
+    //             };
+
+    //             fs::copy(origin, destination)?;
+    //             println!("The remove and copy over method was used")
+    //         }
+    //         "copy over" => {
+    //             println!("The copy over method was used")
+    //         }
+    //         "symlink" => {
+    //             println!("The symlink method was used")
+    //         }
+    //         "cat" => {
+    //             println!("The cat method was used")
+    //         }
+    //         &_ => panic!(
+    //             "Method was not specified correctly, refer to documentation for further details."
+    //         ),
+    // }
+    // }
 
     // for (key, _values) in &map {
     //     let dir = fs::read_dir(key)?;
