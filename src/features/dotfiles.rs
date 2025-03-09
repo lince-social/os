@@ -23,102 +23,61 @@ pub fn dotfiles() -> std::io::Result<()> {
     let dotfiles_method = &config_contents.dotfiles.method;
     println!("dotfiles method: {dotfiles_method}");
     let dotfiles_other = &config_contents.dotfiles.other;
-    // println!("dotfiles other: {dotfiles_other:#?}");
-    //
+
     for (destination, origin) in dotfiles_other {
         println!("Processing: destination={destination}, origin={origin}");
-
         match dotfiles_method.as_str() {
             "remove and copy over" => {
-                // if let Err(error) = fs::remove_dir_all(&destination) {
-                //     match error.kind() {
-                //         ErrorKind::NotADirectory => {
-                //             if let Err(e) = fs::remove_file(&destination) {
-                //                 eprintln!("Failed to delete file: {e:?}");
-                //             } else {
-                //                 println!("Deleted file: {destination}");
-                //             }
-                //         }
-                //         ErrorKind::NotFound => println!("File not found: {destination}"),
-                //         other_error => {
-                //             eprintln!("Other problem deleting {destination}: {other_error:?}");
-                //         }
-                //     }
-                // } else {
-                //     println!("Deleted directory: {destination}");
-                // }
+                let _ = match fs::remove_dir_all(&*destination) {
+                    Ok(dir) => {
+                        println!("deleted f:{dir:?} ||| destination: {destination}");
+                        fs::create_dir_all(&destination)?;
+                    },
+                    Err(error) => match error.kind() {
+                        ErrorKind::NotADirectory => {
+                            match fs::remove_file(destination.to_string()) {
+                                Ok(file) =>{
+                                 println!("deleted file: {file:?}||{destination}");
+                                         fs::File::create(&destination)?;
+                                }
+                                Err(e) => panic!("Problem deleting file: {e:?}"),
+                            }
+                        }
+                        ErrorKind::NotFound => {
+                            println!("Error not found hayaa: {destination}");
+                            let md = match fs::metadata(destination).unwrap();
+                            if md.is_file() {
+                                fs::File::create(&destination)?;
+                            } else {
+                                fs::create_dir_all(&destination)?;
+                            }
+                        },
+                        other_error => {
+                            panic!("Other problem: {other_error:?}");
+                        }
+                    },
+                };
 
-                if let Err(copy_error) = fs::copy(&origin, &destination) {
-                    eprintln!("Failed to copy {origin} to {destination}: {copy_error:?}");
+                let pre = destination.split("/");
+                let last = pre.clone().last().unwrap();
+
+                let mut joined_pre = String::new();
+
+                for part in pre {
+                    if part != last {
+                        joined_pre.push_str(part);
+                        joined_pre.push_str("/");
+                    }
+                }
+
+                if let Err(copy_error) = fs::copy(&origin, &joined_pre) {
+                    eprintln!("Failed to copy {origin} to {joined_pre}: {copy_error:?}");
                 } else {
-                    println!("Copied {origin} to {destination}");
+                    println!("Copied {origin} to {joined_pre}");
                 }
             }
             _ => println!("Unknown method: {dotfiles_method}"),
         }
     }
-    // for (destination, origin) in dotfiles_other {
-    //     // println!("destination: {destination}");
-    //     // println!("origin: {origin}");
-    //     // println!("---");
-    //     match dotfiles_method.as_str() {
-    //         "remove and copy over" => {
-    //             let _ = match fs::remove_dir_all(&*destination) {
-    //                 Ok(file) => println!("deleted f:{file:?} ||| destination: {destination}"),
-    //                 Err(error) => match error.kind() {
-    //                     ErrorKind::NotADirectory => {
-    //                         match fs::remove_file(destination.to_string()) {
-    //                             Ok(fd) => println!("deleted: fd(){fd:?}||{destination}"),
-    //                             Err(e) => panic!("Problem deleting file: {e:?}"),
-    //                         }
-    //                     }
-    //                     ErrorKind::NotFound => println!("Error not found hayaa: {destination}"),
-    //                     other_error => {
-    //                         panic!("Other problem: {other_error:?}");
-    //                     }
-    //                 },
-    //             };
-
-    //             fs::copy(origin, destination)?;
-    //             println!("The remove and copy over method was used")
-    //         }
-    //         "copy over" => {
-    //             println!("The copy over method was used")
-    //         }
-    //         "symlink" => {
-    //             println!("The symlink method was used")
-    //         }
-    //         "cat" => {
-    //             println!("The cat method was used")
-    //         }
-    //         &_ => panic!(
-    //             "Method was not specified correctly, refer to documentation for further details."
-    //         ),
-    // }
-    // }
-
-    // for (key, _values) in &map {
-    //     let dir = fs::read_dir(key)?;
-    //     for entry in dir {
-    //         let path = entry?.path();
-    //         let path_str = path.to_string_lossy();
-    //         if !nicca.contains(&path_str.to_string()) {
-    //             let _ = match fs::remove_dir_all(&*path_str) {
-    //                 Ok(file) => file,
-    //                 Err(error) => match error.kind() {
-    //                     ErrorKind::NotADirectory => match fs::remove_file(path_str.to_string()) {
-    //                         Ok(fd) => fd,
-    //                         Err(e) => panic!("Problem deleting file: {e:?}"),
-    //                     },
-    //                     ErrorKind::NotFound => println!("Error not found hayaa: {path_str}"),
-    //                     other_error => {
-    //                         panic!("Other problem: {other_error:?}");
-    //                     }
-    //                 },
-    //             };
-    //         }
-    //     }
-    // }
-
     Ok(())
 }
